@@ -49,8 +49,33 @@ function ClickHandler() {
   return null;
 }
 
-// Store ISS path history
+// Store ISS path history (recent ground track)
 let issPathHistory: [number, number][] = [];
+
+// Project the ISS's future ground track for the next N minutes using a
+// simplified orbital model (92.68 min period, 51.6° inclination).
+function projectFutureOrbit(
+  curLat: number,
+  curLng: number,
+  minutesAhead = 90,
+  steps = 60
+): [number, number][] {
+  const ORBIT_PERIOD = 92.68;
+  const points: [number, number][] = [];
+
+  const inclination = (51.6 * Math.PI) / 180;
+  const phase = Math.asin(Math.min(1, Math.max(-1, curLat / 51.6)));
+
+  for (let i = 0; i <= steps; i++) {
+    const t = (minutesAhead * i) / steps;
+    const angle = phase + (2 * Math.PI * t) / ORBIT_PERIOD;
+    const lat = (Math.asin(Math.sin(angle) * Math.sin(inclination)) * 180) / Math.PI;
+    const lngDrift = (360 * t) / 1436.1;
+    const lng = ((curLng + (angle - phase) * (180 / Math.PI) * 0.85 - lngDrift + 540) % 360) - 180;
+    points.push([lat, lng]);
+  }
+  return points;
+}
 
 export default function CosmicMap() {
   useISSTracking();
@@ -63,6 +88,10 @@ export default function CosmicMap() {
       if (issPathHistory.length > 40) issPathHistory = issPathHistory.slice(-40);
     }
   }, [issPosition]);
+
+  const futureOrbit = issPosition
+    ? projectFutureOrbit(issPosition.latitude, issPosition.longitude)
+    : [];
 
   return (
     <MapContainer
@@ -115,6 +144,16 @@ export default function CosmicMap() {
               weight={1.5}
               opacity={0.5}
               dashArray="4 8"
+            />
+          )}
+          {/* Projected future ground track — next 90 minutes */}
+          {futureOrbit.length > 1 && (
+            <Polyline
+              positions={futureOrbit}
+              color="#A78BFA"
+              weight={1}
+              opacity={0.35}
+              dashArray="2 6"
             />
           )}
         </>

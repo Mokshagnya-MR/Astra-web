@@ -44,6 +44,8 @@ interface ZenithStore {
   satellites: SatelliteData[];
   loading: boolean;
   lastUpdated: Date | null;
+  bootComplete: boolean;
+  viewMode: '2d' | '3d';
 
   setCoordinates: (coords: Coordinates) => void;
   setISSPosition: (pos: ISSPosition) => void;
@@ -51,6 +53,8 @@ interface ZenithStore {
   setSatellites: (sats: SatelliteData[]) => void;
   setLoading: (loading: boolean) => void;
   setLastUpdated: (date: Date) => void;
+  setBootComplete: (done: boolean) => void;
+  setViewMode: (mode: '2d' | '3d') => void;
 }
 
 export const useZenithStore = create<ZenithStore>((set) => ({
@@ -60,6 +64,8 @@ export const useZenithStore = create<ZenithStore>((set) => ({
   satellites: [],
   loading: false,
   lastUpdated: null,
+  bootComplete: false,
+  viewMode: '2d',
 
   setCoordinates: (coords) => set({ coordinates: coords }),
   setISSPosition: (pos) => set({ issPosition: pos }),
@@ -67,4 +73,6 @@ export const useZenithStore = create<ZenithStore>((set) => ({
   setSatellites: (sats) => set({ satellites: sats }),
   setLoading: (loading) => set({ loading }),
   setLastUpdated: (date) => set({ lastUpdated: date }),
+  setBootComplete: (done) => set({ bootComplete: done }),
+  setViewMode: (mode) => set({ viewMode: mode }),
 }));
