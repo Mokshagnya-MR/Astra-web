@@ -101,6 +101,7 @@ export default function SkyPlanisphere() {
       iss: '#F59E0B',
       satellite: '#4ADE80',
       star: '#FDE68A',
+      dso: '#f472b6',
     };
 
     const sizeMap: Record<string, number> = {
@@ -109,6 +110,7 @@ export default function SkyPlanisphere() {
       iss: 5,
       satellite: 2,
       star: 2,
+      dso: 3.5,
     };
 
     const allBodies = [...celestialBodies];
@@ -138,26 +140,65 @@ export default function SkyPlanisphere() {
       const color = colorMap[body.type] ?? '#fff';
       const opacity = body.altitude > 0 ? 1 : 0.3;
 
-      const glow = ctx.createRadialGradient(x, y, 0, x, y, size * 3);
-      glow.addColorStop(0, color);
-      glow.addColorStop(1, 'transparent');
       ctx.globalAlpha = opacity;
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(x, y, size * 3, 0, Math.PI * 2);
-      ctx.fill();
 
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(x, y, size, 0, Math.PI * 2);
-      ctx.fill();
+      if (body.type === 'dso') {
+        const dsoLabel = (body.extra?.messier as string) ?? '';
+        
+        // Draw fuzzy DSO nebula glow
+        const glow = ctx.createRadialGradient(x, y, 0, x, y, size * 3.5);
+        glow.addColorStop(0, 'rgba(244, 114, 182, 0.25)');
+        glow.addColorStop(1, 'transparent');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(x, y, size * 3.5, 0, Math.PI * 2);
+        ctx.fill();
 
-      if (body.altitude > 10) {
-        ctx.fillStyle = 'rgba(200,216,248,0.7)';
-        ctx.font = '8px Inter, sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText(body.name, x + size + 3, y + 3);
+        // Draw dotted target circle
+        ctx.beginPath();
+        ctx.arc(x, y, size * 2.2, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(244, 114, 182, 0.6)';
+        ctx.lineWidth = 0.8;
+        ctx.setLineDash([2, 3]);
+        ctx.stroke();
+        ctx.setLineDash([]); // reset dash
+
+        // Draw center core
+        ctx.beginPath();
+        ctx.arc(x, y, 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = '#f472b6';
+        ctx.fill();
+
+        // Label
+        if (body.altitude > 5) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.font = '8px JetBrains Mono, monospace';
+          ctx.textAlign = 'left';
+          ctx.fillText(`${dsoLabel} (${body.name})`, x + size + 4, y + 2.5);
+        }
+      } else {
+        // Standard body drawing
+        const glow = ctx.createRadialGradient(x, y, 0, x, y, size * 3);
+        glow.addColorStop(0, color);
+        glow.addColorStop(1, 'transparent');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(x, y, size * 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (body.altitude > 10) {
+          ctx.fillStyle = 'rgba(200,216,248,0.7)';
+          ctx.font = '8px Inter, sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText(body.name, x + size + 3, y + 3);
+        }
       }
+
       ctx.globalAlpha = 1;
     });
   }, [celestialBodies, issPosition, coordinates]);
@@ -170,9 +211,10 @@ export default function SkyPlanisphere() {
         height={340}
         style={{ maxWidth: '100%', height: 'auto', borderRadius: '50%' }}
       />
-      <div className="flex items-center gap-3 font-mono text-[9px] text-starlight/40">
+      <div className="flex flex-wrap justify-center items-center gap-3 font-mono text-[9px] text-starlight/40 mt-1">
         <LegendDot color="#4FC3F7" label="Planet" />
         <LegendDot color="#A78BFA" label="Constellation" />
+        <LegendDot color="#f472b6" label="DSO (Messier)" />
         <LegendDot color="#F59E0B" label="ISS" />
       </div>
     </div>

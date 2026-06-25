@@ -60,20 +60,36 @@ html, body {
 
 /* Glassmorphism cards */
 .glass-card {
-  background: linear-gradient(180deg, rgba(20, 20, 20, 0.72), rgba(10, 10, 10, 0.72));
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  background: linear-gradient(180deg, rgba(15, 15, 15, 0.25), rgba(5, 5, 5, 0.25));
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  background: linear-gradient(180deg, rgba(20, 20, 20, 0.35), rgba(10, 10, 10, 0.35));
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.02), 0 16px 48px 0 rgba(0, 0, 0, 0.6);
+  transform: translateY(-2px);
 }
 
 .glass-card-bright {
-  background: rgba(30, 30, 30, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-bright:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.04), 0 16px 48px 0 rgba(0, 0, 0, 0.4);
 }
 
 /* Scanning radar animation */
@@ -240,6 +256,10 @@ html, body {
 /* Responsive */
 @media (max-width: 768px) {
   .glass-card { border-radius: 8px; }
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -249,3 +269,22 @@ html, body {
   }
 }
 
+/* Custom Input Overrides */
+input[type="text"], input[type="number"], select {
+  background: rgba(10, 10, 10, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  color: var(--starlight) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+input[type="text"]:focus, input[type="number"]:focus, select:focus {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1) !important;
+  background: rgba(15, 15, 15, 0.75) !important;
+}
+
+button {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}

@@ -15,13 +15,20 @@ import PlanetPanel from '@/components/celestial/PlanetPanel';
 import ISSPassPredictor from '@/components/celestial/ISSPassPredictor';
 import SkyPlanisphere from '@/components/celestial/SkyPlanisphere';
 import CelestialEvents from '@/components/celestial/CelestialEvents';
+import SpaceWeatherPanel from '@/components/celestial/SpaceWeatherPanel';
+import SkyTourPanel from '@/components/celestial/SkyTourPanel';
+import AIChatPanel from '@/components/ai/AIChatPanel';
+import ViewToggle from '@/components/map/ViewToggle';
 import { useZenithStore } from '@/hooks/useZenithStore';
 import { useShareableURL } from '@/hooks/useShareableURL';
-import AIChatPanel from '@/components/ai/AIChatPanel';
 
 const Globe3D = dynamic(() => import('@/components/map/Globe3D'), {
   ssr: false,
   loading: () => <MapLoading label="LOADING 3D GLOBE" />,
+});
+const CosmicMap = dynamic(() => import('@/components/map/CosmicMap'), {
+  ssr: false,
+  loading: () => <MapLoading label="LOADING 2D RADAR MAP" />,
 });
 
 function MapLoading({ label }: { label: string }) {
@@ -36,7 +43,7 @@ function MapLoading({ label }: { label: string }) {
 }
 
 export default function Home() {
-  const { coordinates } = useZenithStore();
+  const { coordinates, viewMode } = useZenithStore();
   useShareableURL();
   useISSTracking();
 
@@ -44,21 +51,30 @@ export default function Home() {
     <>
       {coordinates && (
         <div className="flex flex-col gap-4">
+          {/* Row 1 */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
             <CelestialDashboard />
             <PlanetPanel />
             <SatellitePanel />
           </div>
+          {/* Row 2 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <SpaceWeatherPanel />
+            <SkyTourPanel />
+            <ISSPassPredictor />
+          </div>
+          {/* Row 3 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="glass-card p-4 flex flex-col items-center gap-3">
-              <h2 className="font-display text-xs text-neutral-300 tracking-widest self-start">SKY VIEW (PLANISPHERE)</h2>
+              <h2 className="font-display text-xs text-yellow-400 tracking-widest self-start">SKY VIEW — PLANISPHERE</h2>
               <div className="panel-rule w-full" />
               <SkyPlanisphere />
             </div>
-            <ISSPassPredictor />
             <AIChatPanel />
           </div>
+          {/* Row 4 */}
           <ConstellationOverlay />
+          {/* Row 5 */}
           <CelestialEvents />
         </div>
       )}
@@ -69,29 +85,23 @@ export default function Home() {
     <main className="min-h-screen flex flex-col">
       <BootSequence />
       <Header />
-
       <section className="relative flex-1">
         <HeroOverlay />
-
         <div className="container mx-auto px-4 pt-24 pb-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <div className="lg:col-span-2 h-[480px] rounded-xl overflow-hidden border border-aurora/20 relative">
-              <Globe3D />
+            <div className="lg:col-span-2 h-[350px] sm:h-[480px] lg:h-[650px] glass-card overflow-hidden relative">
+              <ViewToggle />
+              {viewMode === '3d' ? <Globe3D /> : <CosmicMap />}
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 justify-between">
               <CoordinatePanel />
               <ISSTracker />
             </div>
           </div>
-
-          {/* Desktop: panels inline. Mobile: hidden, shown via drawer instead */}
           <div className="hidden lg:block">{dataPanels}</div>
         </div>
       </section>
-
-      {/* Mobile drawer holds the same panels for small screens */}
       <MobileDrawer>{dataPanels}</MobileDrawer>
-
       <footer className="hidden lg:block border-t border-aurora/10 py-6 text-center">
         <p className="text-starlight/40 font-mono text-xs tracking-widest">
           PROJECT ZENITH: THE CELESTIAL EYE · REAL-TIME COSMIC RADAR · {new Date().getFullYear()}

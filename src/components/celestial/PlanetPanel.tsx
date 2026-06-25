@@ -14,6 +14,17 @@ const PLANET_EMOJI: Record<string, string> = {
   Moon: '🌙',
 };
 
+const PLANET_FACTS: Record<string, string> = {
+  Mercury: 'Closest planet to the Sun. A year lasts just 88 Earth days; surface temps swing −180°C to 430°C.',
+  Venus: 'Hottest planet at 465°C average. Rotates backwards — a Venusian day is longer than its year.',
+  Mars: 'Home to Olympus Mons, the solar system\'s tallest volcano at 21.9 km. Two tiny moons orbit it.',
+  Jupiter: 'Largest planet — 1,300 Earths fit inside. Its Great Red Spot is a storm raging for 350+ years.',
+  Saturn: 'Ring system spans 282,000 km but is only ~10 m thick. Saturn is less dense than water.',
+  Uranus: 'Rotates on its side at 97.8°. Discovered in 1781 — the first planet found with a telescope.',
+  Neptune: 'Winds reach 2,100 km/h — fastest in the solar system. Its moon Triton orbits backwards.',
+  Moon: 'Drifts 3.8 cm away from Earth each year. Stabilises Earth\'s axial tilt to 23.5°.',
+};
+
 export default function PlanetPanel() {
   const { celestialBodies } = useZenithStore();
   const planets = celestialBodies
@@ -48,11 +59,12 @@ export default function PlanetPanel() {
 
 function PlanetRow({ planet }: { planet: CelestialBody }) {
   const altPct = Math.max(0, Math.min(100, ((planet.altitude + 10) / 100) * 100));
+  const fact = PLANET_FACTS[planet.name];
 
   return (
-    <div className={`rounded-lg p-2.5 border transition-all ${
+    <div className={`rounded-lg p-2.5 border transition-all group relative ${
       planet.visible
-        ? 'border-comet/20 bg-white/[0.04]'
+        ? 'border-comet/20 bg-white/[0.04] hover:border-comet/50 cursor-help'
         : 'border-starlight/5 bg-void/20 opacity-50'
     }`}>
       <div className="flex items-center justify-between mb-1.5">
@@ -64,20 +76,28 @@ function PlanetRow({ planet }: { planet: CelestialBody }) {
           {planet.magnitude !== undefined && (
             <span className="font-mono text-[10px] text-starlight/40">mag {planet.magnitude.toFixed(1)}</span>
           )}
-          <span className={`w-1.5 h-1.5 rounded-full ${planet.visible ? 'bg-neutral-400' : 'bg-red-500/50'}`} />
+          <span className={`w-1.5 h-1.5 rounded-full ${planet.visible ? 'bg-green-400' : 'bg-red-500/50'}`} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-1 font-mono text-[10px] text-starlight/60 mb-1.5">
         <span>Alt: <span className="text-comet">{planet.altitude.toFixed(1)}°</span></span>
         <span>Az: <span className="text-comet">{planet.azimuth.toFixed(1)}°</span></span>
       </div>
-      {/* Altitude bar */}
       <div className="h-0.5 rounded bg-comet/10 w-full overflow-hidden">
         <div
           className="h-full rounded bg-gradient-to-r from-comet to-aurora transition-all duration-1000"
           style={{ width: `${altPct}%` }}
         />
       </div>
+
+      {/* Educational tooltip on hover */}
+      {fact && planet.visible && (
+        <div className="absolute left-0 right-0 bottom-full mb-2 z-20 hidden group-hover:block pointer-events-none">
+          <div className="glass-card rounded-lg px-3 py-2 text-[10px] font-mono text-starlight/75 leading-relaxed shadow-2xl border border-comet/25">
+            {fact}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

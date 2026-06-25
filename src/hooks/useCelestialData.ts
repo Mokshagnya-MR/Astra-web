@@ -85,17 +85,57 @@ async function computeConstellations(lat: number, lng: number, date: Date): Prom
   });
 }
 
+// Major Messier Catalog Deep Space Objects (DSOs)
+const DSOS = [
+  { name: 'Andromeda Galaxy', messier: 'M31', ra: 0.7123,  dec: 41.269,  dsoType: 'Spiral Galaxy', distance: '2.5M ly' },
+  { name: 'Orion Nebula',     messier: 'M42', ra: 5.5881,  dec: -5.383,  dsoType: 'Emission Nebula', distance: '1,344 ly' },
+  { name: 'Pleiades Cluster', messier: 'M45', ra: 3.7836,  dec: 24.116,  dsoType: 'Open Cluster', distance: '444 ly' },
+  { name: 'Crab Nebula',      messier: 'M1',  ra: 5.5755,  dec: 22.014,  dsoType: 'Supernova Remnant', distance: '6,500 ly' },
+  { name: 'Ring Nebula',      messier: 'M57', ra: 18.892,  dec: 33.029,  dsoType: 'Planetary Nebula', distance: '2,283 ly' },
+  { name: 'Hercules Cluster', messier: 'M13', ra: 16.693,  dec: 36.461,  dsoType: 'Globular Cluster', distance: '22,200 ly' },
+];
+
+async function computeDSOs(lat: number, lng: number, date: Date): Promise<CelestialBody[]> {
+  const Astronomy = await import('astronomy-engine');
+  const observer = new Astronomy.Observer(lat, lng, 0);
+  const time = Astronomy.MakeTime(date);
+
+  return DSOS.map(({ name, messier, ra, dec, dsoType, distance }) => {
+    try {
+      const hor = Astronomy.Horizon(time, observer, ra, dec, 'normal');
+      return {
+        name,
+        type: 'dso',
+        altitude: hor.altitude,
+        azimuth: hor.azimuth,
+        visible: hor.altitude > 0,
+        extra: { messier, dsoType, distance },
+      } as CelestialBody;
+    } catch {
+      return {
+        name,
+        type: 'dso',
+        altitude: 0,
+        azimuth: 0,
+        visible: false,
+        extra: { messier, dsoType, distance },
+      } as CelestialBody;
+    }
+  });
+}
+
 export function useCelestialData(coords: Coordinates | null) {
   const { setCelestialBodies } = useZenithStore();
 
   const refresh = useCallback(async () => {
     if (!coords) return;
     const now = new Date();
-    const [planets, constellations] = await Promise.all([
+    const [planets, constellations, dsos] = await Promise.all([
       computePlanets(coords.lat, coords.lng, now),
       computeConstellations(coords.lat, coords.lng, now),
+      computeDSOs(coords.lat, coords.lng, now),
     ]);
-    setCelestialBodies([...planets, ...constellations]);
+    setCelestialBodies([...planets, ...constellations, ...dsos]);
   }, [coords, setCelestialBodies]);
 
   useEffect(() => {

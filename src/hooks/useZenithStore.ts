@@ -16,7 +16,7 @@ export interface ISSPosition {
 
 export interface CelestialBody {
   name: string;
-  type: 'planet' | 'satellite' | 'iss' | 'constellation' | 'star';
+  type: 'planet' | 'satellite' | 'iss' | 'constellation' | 'star' | 'dso';
   altitude: number;   // degrees above horizon
   azimuth: number;    // degrees from North
   distance?: number;  // km
@@ -46,6 +46,10 @@ interface ZenithStore {
   lastUpdated: Date | null;
   bootComplete: boolean;
   viewMode: '2d' | '3d';
+  audioEnabled: boolean;
+  tourActive: boolean;
+  tourIndex: number;
+  alerts: string[]; // List of rise times or IDs for scheduled push alerts
 
   setCoordinates: (coords: Coordinates) => void;
   setISSPosition: (pos: ISSPosition) => void;
@@ -55,6 +59,10 @@ interface ZenithStore {
   setLastUpdated: (date: Date) => void;
   setBootComplete: (done: boolean) => void;
   setViewMode: (mode: '2d' | '3d') => void;
+  setAudioEnabled: (enabled: boolean) => void;
+  setTourActive: (active: boolean) => void;
+  setTourIndex: (idx: number) => void;
+  toggleAlert: (passId: string) => void;
 }
 
 export const useZenithStore = create<ZenithStore>((set) => ({
@@ -66,6 +74,10 @@ export const useZenithStore = create<ZenithStore>((set) => ({
   lastUpdated: null,
   bootComplete: false,
   viewMode: '3d',
+  audioEnabled: false,
+  tourActive: false,
+  tourIndex: 0,
+  alerts: [],
 
   setCoordinates: (coords) => set({ coordinates: coords }),
   setISSPosition: (pos) => set({ issPosition: pos }),
@@ -75,4 +87,13 @@ export const useZenithStore = create<ZenithStore>((set) => ({
   setLastUpdated: (date) => set({ lastUpdated: date }),
   setBootComplete: (done) => set({ bootComplete: done }),
   setViewMode: (mode) => set({ viewMode: mode }),
+  setAudioEnabled: (enabled) => set({ audioEnabled: enabled }),
+  setTourActive: (active) => set({ tourActive: active, tourIndex: active ? 0 : 0 }),
+  setTourIndex: (idx) => set({ tourIndex: idx }),
+  toggleAlert: (passId) =>
+    set((state) => ({
+      alerts: state.alerts.includes(passId)
+        ? state.alerts.filter((id) => id !== passId)
+        : [...state.alerts, passId],
+    })),
 }));

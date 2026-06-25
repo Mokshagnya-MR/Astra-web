@@ -174,7 +174,7 @@ function RadarCanvas({ bodies }: { bodies: Array<{ name: string; altitude: numbe
 
         const glow = ctx.createRadialGradient(x, y, 0, x, y, 13);
         glow.addColorStop(0, color);
-        glow.addColorStop(0.28, `${color}AA`);
+        glow.addColorStop(0.28, color);
         glow.addColorStop(1, 'transparent');
         ctx.fillStyle = glow;
         ctx.beginPath();

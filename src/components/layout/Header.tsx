@@ -1,10 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useZenithStore } from '@/hooks/useZenithStore';
+import { useCosmicAudio } from '@/hooks/useCosmicAudio';
 
 export default function Header() {
   const [utcTime, setUtcTime] = useState('');
   const [mounted, setMounted] = useState(false);
+  const { audioEnabled, setAudioEnabled } = useZenithStore();
+  useCosmicAudio();
 
   useEffect(() => {
     setMounted(true);
@@ -33,13 +37,26 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Status bar */}
-        <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-mono sm:flex">
-          <StatusDot label="ISS" color="solar" />
-          <span className="h-3 w-px bg-white/10" />
-          <StatusDot label="Satellites" color="aurora" />
-          <span className="h-3 w-px bg-white/10" />
-          <StatusDot label="Live" color="comet" />
+        {/* Status bar & Audio Toggle */}
+        <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-mono sm:flex">
+            <StatusDot label="ISS" color="solar" />
+            <span className="h-3 w-px bg-white/10" />
+            <StatusDot label="Satellites" color="aurora" />
+            <span className="h-3 w-px bg-white/10" />
+            <StatusDot label="Live" color="comet" />
+          </div>
+
+          <button
+            onClick={() => setAudioEnabled(!audioEnabled)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[10px] font-mono tracking-wider transition-all hover:bg-white/10 cursor-pointer ${
+              audioEnabled
+                ? 'border-aurora/40 bg-aurora/10 text-aurora shadow-[0_0_8px_rgba(255,255,255,0.15)]'
+                : 'border-white/10 bg-white/[0.02] text-starlight/40'
+            }`}
+          >
+            {audioEnabled ? '🔊 SONAR ON' : '🔇 SONAR OFF'}
+          </button>
         </div>
 
         {/* UTC clock */}
