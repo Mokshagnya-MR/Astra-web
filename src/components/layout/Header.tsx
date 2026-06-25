@@ -2,69 +2,80 @@
 
 import { useState, useEffect } from 'react';
 import { useZenithStore } from '@/hooks/useZenithStore';
-import { useCosmicAudio } from '@/hooks/useCosmicAudio';
+
+const NAV_SECTIONS = [
+  { id: 'section-map',          label: 'MAP' },
+  { id: 'section-radar',        label: 'RADAR' },
+  { id: 'section-weather',      label: 'WEATHER' },
+  { id: 'section-planisphere',  label: 'SKY VIEW' },
+  { id: 'section-events',       label: 'EVENTS' },
+  { id: 'section-ai',           label: 'AI ORACLE' },
+];
 
 export default function Header() {
   const [utcTime, setUtcTime] = useState('');
   const [mounted, setMounted] = useState(false);
-  const { audioEnabled, setAudioEnabled } = useZenithStore();
-  useCosmicAudio();
+  const { setWebsiteTourActive, websiteTourActive } = useZenithStore();
 
   useEffect(() => {
     setMounted(true);
-    const tick = () => {
-      const now = new Date();
-      setUtcTime(now.toUTCString().replace('GMT', 'UTC'));
-    };
+    const tick = () => setUtcTime(new Date().toUTCString().replace('GMT', 'UTC'));
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, []);
 
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-void/80 px-4 py-3 backdrop-blur-xl">
-      <div className="container mx-auto flex items-center justify-between gap-4">
+    <header className="fixed top-0 left-0 right-0 z-50 glass-card rounded-none border-b border-aurora/20 px-4 py-2">
+      <div className="container mx-auto flex items-center justify-between gap-2">
         {/* Logo */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <RadarIcon />
           <div>
-            <h1 className="font-display text-aurora text-sm font-bold tracking-widest">
-              PROJECT ZENITH
-            </h1>
-            <p className="hidden text-[11px] text-starlight/55 sm:block">
-              Real-time sky scanner
-            </p>
+            <h1 className="font-display text-aurora text-xs font-bold tracking-widest glow-text">PROJECT ZENITH</h1>
+            <p className="font-mono text-starlight/40 text-[9px] tracking-widest hidden sm:block">THE CELESTIAL EYE</p>
           </div>
         </div>
 
-        {/* Status bar & Audio Toggle */}
-        <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-mono sm:flex">
-            <StatusDot label="ISS" color="solar" />
-            <span className="h-3 w-px bg-white/10" />
-            <StatusDot label="Satellites" color="aurora" />
-            <span className="h-3 w-px bg-white/10" />
-            <StatusDot label="Live" color="comet" />
+        {/* Jump nav — hidden on mobile */}
+        <nav className="hidden lg:flex items-center gap-1">
+          {NAV_SECTIONS.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => scrollTo(s.id)}
+              className="px-2.5 py-1 font-mono text-[9px] tracking-widest text-starlight/40 hover:text-aurora hover:bg-aurora/10 rounded transition-all"
+            >
+              {s.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Right side */}
+        <div className="flex items-center gap-3">
+          {/* Tour button */}
+          {!websiteTourActive && (
+            <button
+              onClick={() => setWebsiteTourActive(true)}
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 font-mono text-[9px] tracking-widest text-comet border border-comet/30 rounded hover:bg-comet/10 transition-all"
+            >
+              ❓ TOUR
+            </button>
+          )}
+          {/* Status dots */}
+          <div className="hidden md:flex items-center gap-3 text-[9px] font-mono">
+            <StatusDot label="ISS" color="bg-yellow-400" />
+            <StatusDot label="SAT" color="bg-sky-400" />
           </div>
-
-          <button
-            onClick={() => setAudioEnabled(!audioEnabled)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[10px] font-mono tracking-wider transition-all hover:bg-white/10 cursor-pointer ${
-              audioEnabled
-                ? 'border-aurora/40 bg-aurora/10 text-aurora shadow-[0_0_8px_rgba(255,255,255,0.15)]'
-                : 'border-white/10 bg-white/[0.02] text-starlight/40'
-            }`}
-          >
-            {audioEnabled ? '🔊 SONAR ON' : '🔇 SONAR OFF'}
-          </button>
-        </div>
-
-        {/* UTC clock */}
-        <div className="hidden md:block text-right">
-          <p className="font-mono text-[10px] text-starlight/40 tracking-widest">UTC TIME</p>
-          <p className="font-mono text-aurora text-xs tracking-wider">
-            {mounted ? utcTime : '—'}
-          </p>
+          {/* Clock */}
+          <div className="hidden xl:block text-right">
+            <p className="font-mono text-[9px] text-starlight/30 tracking-widest">UTC</p>
+            <p className="font-mono text-aurora text-[10px]">{mounted ? utcTime.slice(17, 25) : '—'}</p>
+          </div>
         </div>
       </div>
     </header>
@@ -72,29 +83,24 @@ export default function Header() {
 }
 
 function StatusDot({ label, color }: { label: string; color: string }) {
-  const colorMap: Record<string, string> = {
-    solar: 'bg-yellow-400',
-    aurora: 'bg-sky-400',
-    comet: 'bg-violet-400',
-  };
   return (
-    <div className="flex items-center gap-1.5">
-      <span className={`w-1.5 h-1.5 rounded-full ${colorMap[color]} animate-pulse-slow`} />
-      <span className="text-starlight/65">{label}</span>
+    <div className="flex items-center gap-1">
+      <span className={`w-1.5 h-1.5 rounded-full ${color} animate-pulse`} />
+      <span className="text-starlight/50">{label}</span>
     </div>
   );
 }
 
 function RadarIcon() {
   return (
-    <div className="relative w-8 h-8 flex-shrink-0">
+    <div className="w-7 h-7 flex-shrink-0">
       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-        <circle cx="16" cy="16" r="14" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
-        <circle cx="16" cy="16" r="10" stroke="rgba(255,255,255,0.4)" strokeWidth="1" />
-        <circle cx="16" cy="16" r="6" stroke="rgba(255,255,255,0.5)" strokeWidth="1" />
-        <circle cx="16" cy="16" r="2" fill="#FFFFFF" />
-        <line x1="16" y1="2" x2="16" y2="30" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
-        <line x1="2" y1="16" x2="30" y2="16" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
+        <circle cx="16" cy="16" r="14" stroke="rgba(79,195,247,0.3)" strokeWidth="1" />
+        <circle cx="16" cy="16" r="10" stroke="rgba(79,195,247,0.4)" strokeWidth="1" />
+        <circle cx="16" cy="16" r="6" stroke="rgba(79,195,247,0.5)" strokeWidth="1" />
+        <circle cx="16" cy="16" r="2" fill="#4FC3F7" />
+        <line x1="16" y1="2" x2="16" y2="30" stroke="rgba(79,195,247,0.2)" strokeWidth="0.5" />
+        <line x1="2" y1="16" x2="30" y2="16" stroke="rgba(79,195,247,0.2)" strokeWidth="0.5" />
       </svg>
     </div>
   );

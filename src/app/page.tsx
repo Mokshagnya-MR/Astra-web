@@ -5,6 +5,8 @@ import Header from '@/components/layout/Header';
 import HeroOverlay from '@/components/layout/HeroOverlay';
 import BootSequence from '@/components/layout/BootSequence';
 import MobileDrawer from '@/components/layout/MobileDrawer';
+import WebsiteTour from '@/components/layout/WebsiteTour';
+import TourPrompt from '@/components/layout/TourPrompt';
 import { useISSTracking } from '@/hooks/useISSTracking';
 import CoordinatePanel from '@/components/celestial/CoordinatePanel';
 import CelestialDashboard from '@/components/celestial/CelestialDashboard';
@@ -51,31 +53,30 @@ export default function Home() {
     <>
       {coordinates && (
         <div className="flex flex-col gap-4">
-          {/* Row 1 */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          <div id="section-radar" className="grid grid-cols-1 xl:grid-cols-3 gap-4 scroll-mt-16">
             <CelestialDashboard />
             <PlanetPanel />
             <SatellitePanel />
           </div>
-          {/* Row 2 */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div id="section-weather" className="grid grid-cols-1 lg:grid-cols-3 gap-4 scroll-mt-16">
             <SpaceWeatherPanel />
             <SkyTourPanel />
             <ISSPassPredictor />
           </div>
-          {/* Row 3 */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div id="section-planisphere" className="grid grid-cols-1 lg:grid-cols-2 gap-4 scroll-mt-16">
             <div className="glass-card p-4 flex flex-col items-center gap-3">
               <h2 className="font-display text-xs text-yellow-400 tracking-widest self-start">SKY VIEW — PLANISPHERE</h2>
               <div className="panel-rule w-full" />
               <SkyPlanisphere />
             </div>
-            <AIChatPanel />
+            <div id="section-ai" className="scroll-mt-16">
+              <AIChatPanel />
+            </div>
           </div>
-          {/* Row 4 */}
           <ConstellationOverlay />
-          {/* Row 5 */}
-          <CelestialEvents />
+          <div id="section-events" className="scroll-mt-16">
+            <CelestialEvents />
+          </div>
         </div>
       )}
     </>
@@ -84,18 +85,20 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col">
       <BootSequence />
+      <TourPrompt />
+      <WebsiteTour />
       <Header />
       <section className="relative flex-1">
         <HeroOverlay />
         <div className="container mx-auto px-4 pt-24 pb-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div id="section-map" className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 scroll-mt-16">
             <div className="lg:col-span-2 h-[350px] sm:h-[480px] lg:h-[650px] glass-card overflow-hidden relative">
               <ViewToggle />
               {viewMode === '3d' ? <Globe3D /> : <CosmicMap />}
             </div>
-            <div className="flex flex-col gap-4 justify-between">
-              <CoordinatePanel />
-              <ISSTracker />
+            <div className="flex flex-col gap-4">
+              <div id="coord-panel"><CoordinatePanel /></div>
+              <div id="iss-tracker-panel"><ISSTracker /></div>
             </div>
           </div>
           <div className="hidden lg:block">{dataPanels}</div>

@@ -7,10 +7,10 @@ import * as THREE from 'three';
 import { useZenithStore } from '@/hooks/useZenithStore';
 
 const EARTH_RADIUS = 2;
-
+// The Earth group is rotated by -Math.PI/2 on Y so lng offset = -90°
 function latLngToVec3(lat: number, lng: number, radius: number): THREE.Vector3 {
   const phi = (90 - lat) * (Math.PI / 180);
-  const theta = (lng + 90) * (Math.PI / 180);
+  const theta = (lng + 180) * (Math.PI / 180);
   return new THREE.Vector3(
     -radius * Math.sin(phi) * Math.cos(theta),
     radius * Math.cos(phi),
@@ -141,10 +141,14 @@ function ZenithMarker({ lat, lng }: { lat: number; lng: number }) {
 }
 
 function ISSMarker({ lat, lng }: { lat: number; lng: number }) {
-  const pos = useMemo(() => latLngToVec3(lat, lng, EARTH_RADIUS * 1.18), [lat, lng]);
+  const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
+    if (groupRef.current) {
+      const pos = latLngToVec3(lat, lng, EARTH_RADIUS * 1.18);
+      groupRef.current.position.copy(pos);
+    }
     if (meshRef.current) {
       const s = 1 + Math.sin(state.clock.elapsedTime * 4) * 0.2;
       meshRef.current.scale.set(s, s, s);
@@ -152,7 +156,7 @@ function ISSMarker({ lat, lng }: { lat: number; lng: number }) {
   });
 
   return (
-    <group position={pos}>
+    <group ref={groupRef}>
       <mesh ref={meshRef}>
         <sphereGeometry args={[0.045, 12, 12]} />
         <meshBasicMaterial color="#F59E0B" />
