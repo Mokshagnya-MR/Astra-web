@@ -52,11 +52,15 @@ export default function BootSequence() {
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-2 h-2 rounded-full bg-aurora animate-pulse" style={{ boxShadow: '0 0 12px #4FC3F7' }} />
           </div>
-          <div className="absolute inset-0" style={{
-            background: 'conic-gradient(from 0deg, transparent 0deg, rgba(79,195,247,0.3) 40deg, transparent 80deg)',
-            borderRadius: '50%',
-            animation: 'radar-spin 1.5s linear infinite',
-          }} />
+          <div
+            className="absolute inset-0 rounded-full"
+            style={{
+              background:
+                'conic-gradient(from 0deg, transparent 0deg, rgba(79,195,247,0.3) 40deg, transparent 80deg)',
+              transformOrigin: 'center center',
+              animation: 'boot-radar-spin 1.5s linear infinite',
+            }}
+          />
         </div>
         <h1 className="font-display text-2xl font-bold text-aurora tracking-widest glow-text" style={{ marginBottom: 4 }}>
           PROJECT ZENITH
